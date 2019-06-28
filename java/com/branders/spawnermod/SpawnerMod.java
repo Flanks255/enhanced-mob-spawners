@@ -17,26 +17,27 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.IForgeRegistry;
 
 /**
- * 	Small mod adding more functionality to Mob Spawners
+ * 	Small mod adding more functionality to Mob Spawners (Minecraft Forge 1.13.2)
+ * 	
+ * 	Development version for v1.4
  * 
- * 	@author Branders
+ * 	@author Anders <Branders> Blomqvist
  *
  */
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-@Mod(SpawnerMod.modid)
+@Mod(SpawnerMod.MODID)
 public class SpawnerMod
 {		
-	public static final String modid = "spawnermod";
+	public static final String MODID = "spawnermod";
 	
 	/**
-	 * 	Register event handler
+	 * 	Register events and config
 	 */
     public SpawnerMod() 
     {
     	ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.config);
     	Config.loadConfig(Config.config, FMLPaths.CONFIGDIR.get().resolve("spawnermod-config.toml").toString());
     	
-
     	MinecraftForge.EVENT_BUS.register(this);
     	MinecraftForge.EVENT_BUS.register(new SpawnerEventHandler());
     }
@@ -54,6 +55,6 @@ public class SpawnerMod
     {
     	// Register Spawner ItemBlock as a "new" item block
     	// It only makes the spawner show up in decoration tab
-    	registry.register(new ItemBlock(Blocks.SPAWNER, new Item.Properties().group(ItemGroup.DECORATIONS)).setRegistryName(modid, "spawner"));
+    	registry.register(new ItemBlock(Blocks.SPAWNER, new Item.Properties().group(ItemGroup.DECORATIONS)).setRegistryName(MODID, "spawner"));
     }
 }
