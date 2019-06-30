@@ -2,6 +2,7 @@ package com.branders.spawnermod;
 
 import com.branders.spawnermod.config.Config;
 import com.branders.spawnermod.event.SpawnerEventHandler;
+import com.branders.spawnermod.networking.SpawnerModPacketHandler;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -40,10 +41,13 @@ public class SpawnerMod
     	
     	MinecraftForge.EVENT_BUS.register(this);
     	MinecraftForge.EVENT_BUS.register(new SpawnerEventHandler());
+    	
+    	// Register new network packet handler used to manage data from client GUI to server
+    	SpawnerModPacketHandler.register();
     }
     
     /**
-     * 	Event for register spawner item block
+     * 	Event for register spawner wrench and spawner item block
      */
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) 
@@ -53,8 +57,11 @@ public class SpawnerMod
     
     public static void registerItems(IForgeRegistry<Item> registry)
     {
-    	// Register Spawner ItemBlock as a "new" item block
-    	// It only makes the spawner show up in decoration tab
+    	// Register Spawner Wrench
+    	registry.register(new Item(new Item.Properties().group(ItemGroup.TOOLS)).setRegistryName(MODID, "spawner_wrench"));
+    	
+    	// Register Spawner ItemBlock as a "new" item block.
+    	// It only makes the spawner show up in decoration tab.
     	registry.register(new ItemBlock(Blocks.SPAWNER, new Item.Properties().group(ItemGroup.DECORATIONS)).setRegistryName(MODID, "spawner"));
     }
 }

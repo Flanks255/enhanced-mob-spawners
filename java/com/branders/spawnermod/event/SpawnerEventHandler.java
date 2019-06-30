@@ -11,7 +11,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemSpawnEgg;
@@ -39,7 +38,6 @@ import net.minecraftforge.registries.ForgeRegistries;
  * 	@author Anders <Branders> Blomqvist
  *
  */
-
 @EventBusSubscriber
 public class SpawnerEventHandler
 {
@@ -48,8 +46,6 @@ public class SpawnerEventHandler
 	
 	private Random random = new Random();
 	private EntityType<?> defaultEntityType = EntityType.AREA_EFFECT_CLOUD;
-	
-	public static int testData = 10;
 	
 	/**
      * 	When we harvest a block
@@ -62,7 +58,7 @@ public class SpawnerEventHandler
     	{   
     		NBTTagList list = event.getHarvester().getHeldItemMainhand().getEnchantmentTagList();
     		
-    		// Check if silk touch enchant is on the tool
+    		// Return Spawner Block when harvested with Silk Touch
     		if(checkSilkTouch(list))
     			event.getDrops().add(new ItemStack(Blocks.SPAWNER, 1));
     	}
@@ -125,11 +121,11 @@ public class SpawnerEventHandler
     	Entity entity = event.getEntity();
     	EntityType<?> entityType = entity.getType();
     	
-		// Get the entity mob egg and put in an ItemStack
+    	// Maybe change because this don't work on server (getEgg is only for client)
 		ItemSpawnEgg egg = ItemSpawnEgg.getEgg(entityType);
 		ItemStack itemStack = new ItemStack(egg);
 		
-		// Add egg in drops
+		// Add monster egg to drops
 		event.getDrops().add(new EntityItem(entity.world, entity.posX, entity.posY, entity.posZ, itemStack));
     }
     
@@ -157,8 +153,8 @@ public class SpawnerEventHandler
 		// Get item held in hand
 		Item item = event.getItemStack().getItem();
 		
-    	// Check if we right-clicked with @CONFIGURE ITEM
-		if(item.equals(Items.WOODEN_HOE))
+    	// Check if we right-clicked with Spawner Wrench
+		if(item.getRegistryName().toString().equalsIgnoreCase("spawnermod:spawner_wrench"))
 		{
 			// Leave if we are the server
 			if(!world.isRemote)
@@ -166,11 +162,11 @@ public class SpawnerEventHandler
 			
 			// Open GUI
 			TileEntityMobSpawner spawner = (TileEntityMobSpawner)world.getTileEntity(blockpos);
-	    	MobSpawnerBaseLogic logic = spawner.getSpawnerBaseLogic();
-			openSpawnerGui(logic);
+	    	MobSpawnerBaseLogic logic = spawner.getSpawnerBaseLogic();	    	
+			openSpawnerGui(logic, blockpos);
 		}
 			
-		// If not right click with -- just get the egg (only on server to prevent duplicate)
+		// If not right click with Spawner Wrench just get the egg (only on server to prevent visual duplicate)
 		else
 		{
 			// Leave if we are client
@@ -203,10 +199,8 @@ public class SpawnerEventHandler
     	entity_string = entity_string.substring(entity_string.indexOf("\"") + 1);
     	entity_string = entity_string.substring(0, entity_string.indexOf("\""));
     	
-		// Get entity type
+		// Leave if the spawner does not contain an egg	
 		EntityType<?> entityType = EntityType.getById(entity_string);
-		
-		// Leave if the spawner does not contain an egg
 		if(entityType.equals(defaultEntityType))
 			return;
 		
@@ -230,7 +224,7 @@ public class SpawnerEventHandler
 		spawner.markDirty();
 		world.notifyBlockUpdate(blockpos, iblockstate, iblockstate, 3);
     }
-    
+   
     
     /**
      * 	Check a tools item enchantment list contains Silk Touch enchant
@@ -253,9 +247,9 @@ public class SpawnerEventHandler
      * 	Opens GUI for configuration of the spawner. Only on client
      */
     @OnlyIn(Dist.CLIENT)
-    private void openSpawnerGui(MobSpawnerBaseLogic logic)
+    private void openSpawnerGui(MobSpawnerBaseLogic logic, BlockPos pos)
     {
     	Minecraft mc = Minecraft.getInstance();
-    	mc.addScheduledTask(() -> mc.displayGuiScreen(new SpawnerConfigGui(logic)));
+    	mc.addScheduledTask(() -> mc.displayGuiScreen(new SpawnerConfigGui(logic, pos)));
     }
 }

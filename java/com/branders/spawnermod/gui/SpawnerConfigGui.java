@@ -1,6 +1,8 @@
 package com.branders.spawnermod.gui;
 
 import com.branders.spawnermod.SpawnerMod;
+import com.branders.spawnermod.networking.SpawnerModPacketHandler;
+import com.branders.spawnermod.networking.packet.SyncSpawnerMessage;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -8,6 +10,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.MobSpawnerBaseLogic;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 
 /**
  * 	@author Anders <Branders> Blomqvist
@@ -16,6 +19,7 @@ public class SpawnerConfigGui extends GuiScreen
 {
 	// References to Spawner Logic and NBT Data. Set in constructor
 	private MobSpawnerBaseLogic logic;
+	private BlockPos pos;
 	private NBTTagCompound nbt = new NBTTagCompound();	
 	
 	// GUI Texture
@@ -73,32 +77,25 @@ public class SpawnerConfigGui extends GuiScreen
 	private short requiredPlayerRange;
 	
 	/**
-	 * 	When creaing this GUI a reference to the Mob Spawner logic is required so we can edit
-	 * 	the values for count, speed and range. 
+	 * 	When creating this GUI a reference to the Mob Spawner logic and BlockPos is required so we can read
+	 * 	current NBT values (used to make GUI remember option states) and send network package to server with
+	 * 	a reference to the spawner block position.
 	 */
-	public SpawnerConfigGui(MobSpawnerBaseLogic logic)
+	public SpawnerConfigGui(MobSpawnerBaseLogic logic, BlockPos pos)
 	{
 		this.logic = logic;
-    	nbt = this.logic.writeToNBT(nbt);
+		this.pos = pos;
     	
     	// Read values for Spawner to check what type of configuration it has so we can render
     	// correct button display strings. We have to read all the values in case the player
     	// doesn't change anything and presses save button.
+		nbt = this.logic.writeToNBT(nbt);
     	delay = nbt.getShort("Delay");
     	minSpawnDelay = nbt.getShort("MinSpawnDelay");
     	maxSpawnDelay = nbt.getShort("MaxSpawnDelay");
     	spawnCount = nbt.getShort("SpawnCount");
     	maxNearbyEntities = nbt.getShort("MaxNearbyEntities");
     	requiredPlayerRange = nbt.getShort("RequiredPlayerRange");
-    	
-    	/*
-    	System.out.println("\nDelay: " + delay + 
-    			"\nSpawnCount: " + spawnCount +
-    			"\nReqPR: " + requiredPlayerRange + 
-    			"\nMaxNearby: " + maxNearbyEntities + 
-    			"\nMinSpawnD: " + minSpawnDelay + 
-    			"\nMaxSpawnD: " + maxSpawnDelay);
-		*/
     	
     	// Load button configuration
     	countOptionValue = loadOptionState(spawnCount, _spawnCount);
@@ -279,37 +276,17 @@ public class SpawnerConfigGui extends GuiScreen
 		mc.getTextureManager().bindTexture(spawnerConfigTexture);
 		drawModalRectWithCustomSizedTexture(width / 2 - imageWidth / 2, 5, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 		
-		// Render other stuff aswell (buttons)
+		// Render other stuff as well (buttons)
 		super.render(mouseX, mouseY, partialTicks);
 	}
 	
 	
 	/**
-     * 	Write new values to Spawner logic NBT
+     * 	Send message to server with the new NBT values.
      */
     private void configureSpawner()
     {	
-    	// Write all new values to NBT
-    	nbt.setShort("Delay", delay);
-    	nbt.setShort("SpawnCount", spawnCount);
-    	nbt.setShort("RequiredPlayerRange", requiredPlayerRange);
-    	nbt.setShort("MaxNearbyEntities", maxNearbyEntities);
-    	nbt.setShort("MinSpawnDelay", minSpawnDelay);
-    	nbt.setShort("MaxSpawnDelay", maxSpawnDelay);
-    	
-    	/**
-    	 *	Debug
-    	 
-    	System.out.println("\nDelay: " + delay + 
-    			"\nSpawnCount: " + spawnCount +
-    			"\nReqPR: " + requiredPlayerRange + 
-    			"\nMaxNearby: " + maxNearbyEntities + 
-    			"\nMinSpawnD: " + minSpawnDelay + 
-    			"\nMaxSpawnD: " + maxSpawnDelay);
-		*/
-    	
-    	// Set new spawn data
-    	logic.readFromNBT(nbt);
+    	SpawnerModPacketHandler.INSTANCE.sendToServer(new SyncSpawnerMessage(pos, delay, spawnCount, requiredPlayerRange, maxNearbyEntities, minSpawnDelay, maxSpawnDelay));
     }
     
     
