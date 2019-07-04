@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "D",
+    "D",
+    "S"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "S": {
+      "item": "minecraft:mob_spawner"
+    }
+  },
+  
+  "result": {
+    "item": "spawnermod:spawner_key"
+  }
+}
