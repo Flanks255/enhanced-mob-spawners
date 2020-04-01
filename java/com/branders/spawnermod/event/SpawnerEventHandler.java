@@ -49,25 +49,6 @@ public class SpawnerEventHandler
 	
 	private Random random = new Random();
 	
-	
-	/**
-     * 	When we harvest a block
-     * 	Return spawner block when harvested with silk touch
-     */
-	@SubscribeEvent
-	public void onBlockHarvestEvent(BlockEvent.HarvestDropsEvent event)
-	{
-		if(event.getState().getBlock() == Blocks.MOB_SPAWNER)
-    	{   
-    		NBTTagList list = event.getHarvester().getHeldItemMainhand().getEnchantmentTagList();
-    		
-    		// Check if silk touch enchant is on the tool and drop spawner if true
-    		if(checkSilkTouch(list))
-    			event.getDrops().add(new ItemStack(Blocks.MOB_SPAWNER, 1));
-    	}
-	}
-	
-	
 	/**
      * 	When a block is destroyed
      * 	Prevent XP drop when spawner is destroyed with silk touch
@@ -82,10 +63,18 @@ public class SpawnerEventHandler
     		
     		// Return 0 EXP when harvested with silk touch
     		if(checkSilkTouch(list))
+    		{
     			event.setExpToDrop(0);
+    			
+    			// Return spawner block
+    			ItemStack itemstack = new ItemStack(Blocks.MOB_SPAWNER);
+    			World eventWorld = event.getWorld();
+    			BlockPos pos = event.getPos();
+    			EntityItem entityItem = new EntityItem(eventWorld, pos.getX(), pos.getY(), pos.getZ(), itemstack);
+    			eventWorld.spawnEntity(entityItem);
+    		}
     	}
     }
-    
     
     /**
      * 	Called when a block gets an update
