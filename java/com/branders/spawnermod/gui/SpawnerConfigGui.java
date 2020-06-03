@@ -1,6 +1,7 @@
 package com.branders.spawnermod.gui;
 
 import com.branders.spawnermod.SpawnerMod;
+import com.branders.spawnermod.config.SpawnerModConfig;
 import com.branders.spawnermod.networking.SpawnerModPacketHandler;
 import com.branders.spawnermod.networking.packet.SyncSpawnerMessage;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -251,6 +252,24 @@ public class SpawnerConfigGui extends Screen
 		{
 			onClose();
 		}));
+		
+		/**
+		 * 	Disable buttons from config
+		 */
+		if(SpawnerModConfig.GENERAL.disable_count.get()) {
+			countButton.active = false;
+			countButton.setMessage("Count disabled");
+		}
+		
+		if(SpawnerModConfig.GENERAL.disable_speed.get()) {
+			speedButton.active = false;
+			speedButton.setMessage("Speed disabled");
+		}
+		
+		if(SpawnerModConfig.GENERAL.disable_range.get()) {
+			rangeButton.active = false;
+			rangeButton.setMessage("Range disabled");
+		}
 	}
 	
 	

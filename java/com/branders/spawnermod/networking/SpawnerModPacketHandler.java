@@ -1,6 +1,7 @@
 package com.branders.spawnermod.networking;
 
 import com.branders.spawnermod.SpawnerMod;
+import com.branders.spawnermod.networking.packet.SyncSpawnerConfig;
 import com.branders.spawnermod.networking.packet.SyncSpawnerEggDrop;
 import com.branders.spawnermod.networking.packet.SyncSpawnerMessage;
 
@@ -31,5 +32,6 @@ public class SpawnerModPacketHandler
 
         INSTANCE.registerMessage(messageId++, SyncSpawnerMessage.class, SyncSpawnerMessage::encode, SyncSpawnerMessage::decode, SyncSpawnerMessage::handle);
         INSTANCE.registerMessage(messageId++, SyncSpawnerEggDrop.class, SyncSpawnerEggDrop::encode, SyncSpawnerEggDrop::decode, SyncSpawnerEggDrop::handle);
+        INSTANCE.registerMessage(messageId++, SyncSpawnerConfig.class, SyncSpawnerConfig::encode, SyncSpawnerConfig::decode, SyncSpawnerConfig::handle);
     }
 }
